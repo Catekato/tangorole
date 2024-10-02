@@ -7,6 +7,7 @@ import argparse
 import soundfile as sf
 import wandb
 from tqdm import tqdm
+from msclap import CLAP
 from diffusers import DDPMScheduler
 from audioldm_eval import EvaluationHelper
 from models import build_pretrained_models, AudioDiffusion
@@ -119,6 +120,20 @@ def main():
         logits_per_audio = outputs.logits_per_audio
         ranks = torch.argsort(logits_per_audio.flatten(), descending=True).cpu().numpy()
         return ranks
+
+    def similarity(waveforms, text):
+        clap_model = CLAP(version='2023', use_cuda=True)
+        similarities = []
+
+        text_embeddings = clap_model.get_text_embeddings(text)
+        audio_embeddings = clap_model.get_audio_embeddings(waveforms)
+
+        for i in range(len(audio_embeddings)):
+            score = clap_model.compute_similarity(text_embeddings[i], a>
+            similarities.append(score.cpu().detach().numpy())
+            similarity_mean = score.mean() / 100
+
+        print(similarity_mean)
     
     # Load Data #
     if train_args.prefix:
@@ -162,6 +177,7 @@ def main():
         result["scheduler_config"] = dict(scheduler.config)
         result["args"] = dict(vars(args))
         result["output_dir"] = output_dir
+        result["clap"] = similarity(output_dir, text_prompts)
 
         with open("outputs/summary.jsonl", "a") as f:
             f.write(json.dumps(result) + "\n\n")
@@ -197,6 +213,7 @@ def main():
             result["scheduler_config"] = dict(scheduler.config)
             result["args"] = dict(vars(args))
             result["output_dir"] = output_dir
+            result["clap"] = similarity(output_dir, text_prompts)
 
             with open("outputs/summary.jsonl", "a") as f:
                 f.write(json.dumps(result) + "\n\n")
