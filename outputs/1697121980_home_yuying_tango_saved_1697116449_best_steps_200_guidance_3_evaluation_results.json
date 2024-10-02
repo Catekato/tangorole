@@ -1,1 +1,0 @@
-{"frechet_distance": 142.6357, "frechet_audio_distance": 30.1636, "kl_sigmoid": -1.0, "kl_softmax": -1.0, "lsd": -1, "psnr": -1, "ssim": -1, "ssim_stft": -1, "is_mean": 1.2309, "is_std": 0.0803, "kid_mean": 0.0878, "kid_std": 0.0}
